@@ -2,6 +2,7 @@ import sqlite3
 import re
 import requests
 import json
+import os
 from telegram import Update
 from telegram.ext import (
     ApplicationBuilder, CommandHandler, MessageHandler,
@@ -12,8 +13,11 @@ from telegram.ext import (
 BOT_TOKEN = "8173485072:AAG5TbdvJG-OC4OBbKp1s7s3TzNs1mYM104"
 SHORTENER_URL = "https://shortiefy.com/api"
 
+# Ensure .data folder exists
+os.makedirs(".data", exist_ok=True)
+
 # SQLite DB Setup
-conn = sqlite3.connect("users.db", check_same_thread=False)
+conn = sqlite3.connect(".data/users.db", check_same_thread=False)
 c = conn.cursor()
 c.execute("""
     CREATE TABLE IF NOT EXISTS users (
@@ -72,8 +76,8 @@ async def set_api(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "cantact us:\n"
-        "shortefy@gmail.com (📢cantact us for any help and inquiry)\n"
+        "Contact us:\n"
+        "shortefy@gmail.com (📢 Contact us for any help and inquiry)"
     )
 
 # Main Handler
