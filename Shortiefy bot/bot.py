@@ -90,6 +90,8 @@ async def handle_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Please set your API key first using /api command.")
         return
 
+    shortened_count = 0  # count how many links were shortened
+
     # Handle Photo + Caption
     if update.message.photo and update.message.caption:
         caption = update.message.caption
@@ -100,8 +102,11 @@ async def handle_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 continue
             short = shorten_url(api_key, url)
             caption = caption.replace(url, short)
+            shortened_count += 1
 
         await update.message.reply_photo(photo=update.message.photo[-1].file_id, caption=caption)
+        if shortened_count > 0:
+            await update.message.reply_text(f"🔗 Shortened {shortened_count} link(s)!")
         return
 
     # Handle Text Messages
@@ -122,8 +127,11 @@ async def handle_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 continue
             short = shorten_url(api_key, url)
             text = text.replace(url, short)
+            shortened_count += 1
 
         await update.message.reply_text(text)
+        if shortened_count > 0:
+            await update.message.reply_text(f"🔗 Shortened {shortened_count} link(s)!")
 
 # ---------------- Start Bot ----------------
 if __name__ == '__main__':
