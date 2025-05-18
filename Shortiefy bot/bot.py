@@ -1,8 +1,8 @@
+import os
 import sqlite3
 import re
 import requests
 import json
-import os
 from telegram import Update
 from telegram.ext import (
     ApplicationBuilder, CommandHandler, MessageHandler,
@@ -13,8 +13,9 @@ from telegram.ext import (
 BOT_TOKEN = "8173485072:AAG5TbdvJG-OC4OBbKp1s7s3TzNs1mYM104"
 SHORTENER_URL = "https://shortiefy.com/api"
 
-# Ensure .data folder exists
-os.makedirs(".data", exist_ok=True)
+# Ensure .data folder exists (important for Render)
+if not os.path.exists(".data"):
+    os.makedirs(".data")
 
 # SQLite DB Setup
 conn = sqlite3.connect(".data/users.db", check_same_thread=False)
@@ -61,8 +62,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "I can convert your links using your own Shortiefy.com API.\n\n"
         "1. Go To 👉 https://shortiefy.com/member/tools/api\n"
         "2. Then Copy API Key\n"
-        "3. Than Type /api than give a single space and than paste your API Key (see example to understand more...)\n\n"
-        "(See Example.👇) Example: /api 04e8ee10b5f123456a640c8f33195abc\n\n"
+        "3. Than Type /api than give a single space and than paste your API Key\n\n"
+        "(See Example👇)\nExample: /api 04e8ee10b5f123456a640c8f33195abc\n\n"
         "Now send links or media with links to get shortened links back!"
     )
 
@@ -77,7 +78,7 @@ async def set_api(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "Contact us:\n"
-        "shortefy@gmail.com (📢 Contact us for any help and inquiry)"
+        "shortefy@gmail.com (📢 For any help or inquiry)"
     )
 
 # Main Handler
@@ -108,7 +109,7 @@ async def handle_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
         text = update.message.text
 
         if text.startswith("/help"):
-            return  # Already handled by command
+            return  # Already handled
 
         urls = re.findall(r'https?://\S+', text)
 
