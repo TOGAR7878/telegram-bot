@@ -9,26 +9,25 @@ from telegram.ext import (
     ContextTypes, filters
 )
 
-# ---------------- CONFIG ----------------
+# Config
 BOT_TOKEN = "8173485072:AAG5TbdvJG-OC4OBbKp1s7s3TzNs1mYM104"
 SHORTENER_URL = "https://shortiefy.com/api"
 
-# ------------- Ensure .data folder exists -------------
-if not os.path.exists(".data"):
-    os.makedirs(".data")
+# Ensure data folder exists
+os.makedirs("data", exist_ok=True)
 
-# ---------------- SQLite DB Setup ----------------
-conn = sqlite3.connect(".data/users.db", check_same_thread=False)
+# SQLite DB Setup
+conn = sqlite3.connect("data/users.db", check_same_thread=False)
 c = conn.cursor()
 c.execute("""
-CREATE TABLE IF NOT EXISTS users (
-    user_id INTEGER PRIMARY KEY,
-    api_key TEXT
-)
+    CREATE TABLE IF NOT EXISTS users (
+        user_id INTEGER PRIMARY KEY,
+        api_key TEXT
+    )
 """)
 conn.commit()
 
-# ---------------- Helper Functions ----------------
+# Helper Functions
 def get_api_key(user_id):
     c.execute("SELECT api_key FROM users WHERE user_id = ?", (user_id,))
     result = c.fetchone()
@@ -53,7 +52,7 @@ def shorten_url(api_key, long_url):
 def is_channel_link(url):
     return "https://t.me/" in url or "t.me/" in url
 
-# ---------------- Commands ----------------
+# Commands
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     name = update.effective_user.first_name
     await update.message.reply_text(
@@ -62,8 +61,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "I can convert your links using your own Shortiefy.com API.\n\n"
         "1. Go To 👉 https://shortiefy.com/member/tools/api\n"
         "2. Then Copy API Key\n"
-        "3. Than Type /api than give a single space and than paste your API Key\n\n"
-        "(See Example👇)\nExample: /api 04e8ee10b5f123456a640c8f33195abc\n\n"
+        "3. Than Type /api than give a single space and than paste your API Key (see example to understand more...)\n\n"
+        "(See Example.👇) Example: /api 04e8ee10b5f123456a640c8f33195abc\n\n"
         "Now send links or media with links to get shortened links back!"
     )
 
@@ -77,11 +76,11 @@ async def set_api(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "Contact us:\n"
-        "shortefy@gmail.com (📢 For any help or inquiry)"
+        "cantact us:\n"
+        "shortefy@gmail.com (📢cantact us for any help and inquiry)\n"
     )
 
-# ---------------- Main Handler ----------------
+# Main Handler
 async def handle_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     api_key = get_api_key(user_id)
@@ -89,8 +88,6 @@ async def handle_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not api_key:
         await update.message.reply_text("Please set your API key first using /api command.")
         return
-
-    shortened_count = 0  # count how many links were shortened
 
     # Handle Photo + Caption
     if update.message.photo and update.message.caption:
@@ -102,11 +99,8 @@ async def handle_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 continue
             short = shorten_url(api_key, url)
             caption = caption.replace(url, short)
-            shortened_count += 1
 
         await update.message.reply_photo(photo=update.message.photo[-1].file_id, caption=caption)
-        if shortened_count > 0:
-            await update.message.reply_text(f"🔗 Shortened {shortened_count} link(s)!")
         return
 
     # Handle Text Messages
@@ -114,7 +108,7 @@ async def handle_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
         text = update.message.text
 
         if text.startswith("/help"):
-            return  # Already handled
+            return  # Already handled by command
 
         urls = re.findall(r'https?://\S+', text)
 
@@ -127,13 +121,10 @@ async def handle_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 continue
             short = shorten_url(api_key, url)
             text = text.replace(url, short)
-            shortened_count += 1
 
         await update.message.reply_text(text)
-        if shortened_count > 0:
-            await update.message.reply_text(f"🔗 Shortened {shortened_count} link(s)!")
 
-# ---------------- Start Bot ----------------
+# Start Bot
 if __name__ == '__main__':
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
