@@ -1,1 +1,1 @@
-fix: removed incorrect requirements
+python-telegram-bot==20.3
