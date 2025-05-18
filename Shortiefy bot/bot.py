@@ -9,26 +9,26 @@ from telegram.ext import (
     ContextTypes, filters
 )
 
-# Config
+# ---------------- CONFIG ----------------
 BOT_TOKEN = "8173485072:AAG5TbdvJG-OC4OBbKp1s7s3TzNs1mYM104"
 SHORTENER_URL = "https://shortiefy.com/api"
 
-# Ensure .data folder exists (important for Render)
+# ------------- Ensure .data folder exists -------------
 if not os.path.exists(".data"):
     os.makedirs(".data")
 
-# SQLite DB Setup
+# ---------------- SQLite DB Setup ----------------
 conn = sqlite3.connect(".data/users.db", check_same_thread=False)
 c = conn.cursor()
 c.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        user_id INTEGER PRIMARY KEY,
-        api_key TEXT
-    )
+CREATE TABLE IF NOT EXISTS users (
+    user_id INTEGER PRIMARY KEY,
+    api_key TEXT
+)
 """)
 conn.commit()
 
-# Helper Functions
+# ---------------- Helper Functions ----------------
 def get_api_key(user_id):
     c.execute("SELECT api_key FROM users WHERE user_id = ?", (user_id,))
     result = c.fetchone()
@@ -53,7 +53,7 @@ def shorten_url(api_key, long_url):
 def is_channel_link(url):
     return "https://t.me/" in url or "t.me/" in url
 
-# Commands
+# ---------------- Commands ----------------
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     name = update.effective_user.first_name
     await update.message.reply_text(
@@ -81,7 +81,7 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "shortefy@gmail.com (📢 For any help or inquiry)"
     )
 
-# Main Handler
+# ---------------- Main Handler ----------------
 async def handle_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     api_key = get_api_key(user_id)
@@ -125,7 +125,7 @@ async def handle_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         await update.message.reply_text(text)
 
-# Start Bot
+# ---------------- Start Bot ----------------
 if __name__ == '__main__':
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
