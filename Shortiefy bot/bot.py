@@ -8,10 +8,26 @@ from telegram.ext import (
     ApplicationBuilder, CommandHandler, MessageHandler,
     ContextTypes, filters
 )
+from flask import Flask
+from threading import Thread
 
 # Config
 BOT_TOKEN = "8173485072:AAG5TbdvJG-OC4OBbKp1s7s3TzNs1mYM104"
 SHORTENER_URL = "https://shortiefy.com/api"
+
+# Keep-Alive Flask Server
+app_flask = Flask('')
+
+@app_flask.route('/')
+def home():
+    return "Bot is alive!"
+
+def run():
+    app_flask.run(host='0.0.0.0', port=8080)
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
 
 # Ensure data folder exists
 os.makedirs("data", exist_ok=True)
@@ -126,11 +142,12 @@ async def handle_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Start Bot
 if __name__ == '__main__':
-    app = ApplicationBuilder().token(BOT_TOKEN).build()
+    keep_alive()  # Prevent sleeping
+    bot = ApplicationBuilder().token(BOT_TOKEN).build()
 
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("api", set_api))
-    app.add_handler(CommandHandler("help", help))
-    app.add_handler(MessageHandler(filters.ALL, handle_all))
+    bot.add_handler(CommandHandler("start", start))
+    bot.add_handler(CommandHandler("api", set_api))
+    bot.add_handler(CommandHandler("help", help))
+    bot.add_handler(MessageHandler(filters.ALL, handle_all))
 
-    app.run_polling()
+    bot.run_polling()
