@@ -30,10 +30,12 @@ def keep_alive():
     t.start()
 
 # Ensure data folder exists
-os.makedirs("data", exist_ok=True)
+data_dir = os.path.join(os.path.dirname(__file__), "data")
+os.makedirs(data_dir, exist_ok=True)
 
-# SQLite DB Setup
-conn = sqlite3.connect("data/users.db", check_same_thread=False)
+# SQLite DB Setup (correct path)
+db_path = os.path.join(data_dir, "users.db")
+conn = sqlite3.connect(db_path, check_same_thread=False)
 c = conn.cursor()
 c.execute("""
     CREATE TABLE IF NOT EXISTS users (
@@ -92,8 +94,8 @@ async def set_api(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "cantact us:\n"
-        "shortefy@gmail.com (📢cantact us for any help and inquiry)\n"
+        "Contact us:\n"
+        "shortefy@gmail.com (📢Contact us for any help and inquiry)\n"
     )
 
 # Main Handler
